@@ -1,0 +1,71 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import AppLayout from './components/layout/AppLayout';
+
+// Auth Pages
+import Splash from './pages/auth/Splash';
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
+
+// Protected App Pages
+import HomeDashboard from './pages/dashboard/HomeDashboard';
+import DailyStudyPlan from './pages/study/DailyStudyPlan';
+import Profile from './pages/profile/Profile';
+import Notifications from './pages/dashboard/Notifications';
+
+// Learning Modules
+import PracticeList from './pages/practice/PracticeList';
+import MockTests from './pages/tests/MockTests';
+import TestExecution from './pages/tests/TestExecution';
+import TestResult from './pages/tests/TestResult';
+import MistakeTracker from './pages/tracker/MistakeTracker';
+import RevisionHub from './pages/revision/RevisionHub';
+import VideoLessons from './pages/lessons/VideoLessons';
+import DoubtSolving from './pages/doubts/DoubtSolving';
+
+// Advanced Views
+import PerformanceAnalytics from './pages/analytics/PerformanceAnalytics';
+import Leaderboard from './pages/social/Leaderboard';
+import ParentDashboard from './pages/roles/ParentDashboard';
+import AdminDashboard from './pages/roles/AdminDashboard';
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Splash />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* Main App flow wrapped in Layout */}
+          <Route element={<AppLayout />}>
+            <Route path="/dashboard" element={<HomeDashboard />} />
+            <Route path="/study-plan" element={<DailyStudyPlan />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/notifications" element={<Notifications />} />
+
+            <Route path="/practice" element={<PracticeList />} />
+            <Route path="/mock-tests" element={<MockTests />} />
+            <Route path="/tests/execution/:id" element={<TestExecution />} />
+            <Route path="/tests/result/:id" element={<TestResult />} />
+
+            <Route path="/mistakes" element={<MistakeTracker />} />
+            <Route path="/revision" element={<RevisionHub />} />
+            <Route path="/video-lessons" element={<VideoLessons />} />
+            <Route path="/doubts" element={<DoubtSolving />} />
+
+            <Route path="/analytics" element={<PerformanceAnalytics />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/parent" element={<ParentDashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+
+            {/* Defaults/Placeholders for missing routes (temporarily pointing to dashboard) */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
