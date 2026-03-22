@@ -4,9 +4,9 @@ import * as Icons from 'lucide-react';
 
 const bottomNavItems = [
   { path: '/dashboard', label: 'Home', icon: 'LayoutDashboard' },
+  { path: '/video-lessons', label: 'Videos', icon: 'PlayCircle' },
   { path: '/practice', label: 'Practice', icon: 'PenLine' },
   { path: '/mock-tests', label: 'Tests', icon: 'FileText' },
-  { path: '/revision', label: 'Revision', icon: 'Zap' }, // using Zap for revision/flash
   { path: '/profile', label: 'Profile', icon: 'User' },
 ];
 
