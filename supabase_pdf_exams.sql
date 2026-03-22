@@ -20,7 +20,7 @@ CREATE TABLE pdf_exams (
   answer_key TEXT,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+);Success. No rows returned
 
 -- 4. Enable RLS on the new table
 ALTER TABLE pdf_exams ENABLE ROW LEVEL SECURITY;
