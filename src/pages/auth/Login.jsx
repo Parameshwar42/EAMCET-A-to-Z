@@ -9,7 +9,7 @@ import { Mail, Lock, LogIn, Chrome } from 'lucide-react';
 export default function Login() {
   const navigate = useNavigate();
   const { login, loginWithGoogle } = useAuth();
-  const [role, setRole] = useState('student'); // student, parent, admin
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -21,7 +21,7 @@ export default function Login() {
       setError('');
       setLoading(true);
       await login(email, password);
-      navigate(role === 'admin' ? '/admin' : role === 'parent' ? '/parent' : '/dashboard');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Failed to sign in');
     } finally {
@@ -68,10 +68,7 @@ export default function Login() {
            <p className="subtitle">Login to continue your preparation</p>
         </div>
 
-        <div style={{ display: 'flex', marginBottom: 'var(--space-6)' }}>
-          <div style={activeTabStyle}>Student</div>
-          <div style={inactiveTabStyle}>Parent</div>
-        </div>
+
 
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
           {error && <div className="bg-red-100 text-danger p-3 rounded mb-4 text-sm font-semibold">{error}</div>}

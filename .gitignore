@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Android / Mobile Build Artifacts
+android/app/build/
+android/.gradle/
+android/local.properties
+.capacitor/

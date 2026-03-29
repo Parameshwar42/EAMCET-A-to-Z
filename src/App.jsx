@@ -23,12 +23,14 @@ import MistakeTracker from './pages/tracker/MistakeTracker';
 import RevisionHub from './pages/revision/RevisionHub';
 import VideoLessons from './pages/lessons/VideoLessons';
 import DoubtSolving from './pages/doubts/DoubtSolving';
+import StudyMaterials from './pages/study/StudyMaterials';
 
 // Advanced Views
 import PerformanceAnalytics from './pages/analytics/PerformanceAnalytics';
 import Leaderboard from './pages/social/Leaderboard';
 import ParentDashboard from './pages/roles/ParentDashboard';
 import AdminDashboard from './pages/roles/AdminDashboard';
+import ExamPlayer from './pages/tests/ExamPlayer';
 
 export default function App() {
   return (
@@ -55,11 +57,13 @@ export default function App() {
             <Route path="/revision" element={<RevisionHub />} />
             <Route path="/video-lessons" element={<VideoLessons />} />
             <Route path="/doubts" element={<DoubtSolving />} />
+            <Route path="/materials" element={<StudyMaterials />} />
 
             <Route path="/analytics" element={<PerformanceAnalytics />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/parent" element={<ParentDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/exam/:id" element={<ExamPlayer />} />
 
             {/* Defaults/Placeholders for missing routes (temporarily pointing to dashboard) */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
