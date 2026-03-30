@@ -28,6 +28,7 @@ export default function HomeDashboard() {
   const [newTask, setNewTask] = useState({ subject: 'Maths', topic: '', type: 'Practice', duration_mins: 30 });
   const [showEditTarget, setShowEditTarget] = useState(false);
   const [newTarget, setNewTarget] = useState(10);
+  const [inlineTask, setInlineTask] = useState('');
 
   useEffect(() => {
     if (currentUser) {
@@ -136,30 +137,83 @@ export default function HomeDashboard() {
     e.preventDefault();
     if (!newTask.topic.trim()) return;
 
+    const todayStr = new Date().toISOString().split('T')[0];
+    const optimisticTask = {
+      id: Date.now().toString(),
+      user_id: currentUser?.id,
+      subject: newTask.subject,
+      topic: newTask.topic,
+      type: newTask.type,
+      duration_mins: parseInt(newTask.duration_mins) || 30,
+      status: 'pending',
+      action_date: todayStr
+    };
+
+    // Optimistic Update
+    setActionPlan([optimisticTask, ...actionPlan]);
+    setShowAddModal(false);
+    setNewTask({ subject: 'Maths', topic: '', type: 'Practice', duration_mins: 30 });
+
     try {
-      const todayStr = new Date().toISOString().split('T')[0];
       const { error } = await supabase.from('user_actions').insert([{
         user_id: currentUser.id,
-        subject: newTask.subject,
-        topic: newTask.topic,
-        type: newTask.type,
-        duration_mins: parseInt(newTask.duration_mins) || 30,
+        subject: optimisticTask.subject,
+        topic: optimisticTask.topic,
+        type: optimisticTask.type,
+        duration_mins: optimisticTask.duration_mins,
         status: 'pending',
         action_date: todayStr
       }]);
 
       if (error) {
          console.error("Supabase insert error:", error);
-         alert("Failed to save task: " + error.message);
-         return;
+         // Soft failure, don't alert to break UX, let them try again later
+      } else {
+         fetchDashboardData();
       }
-
-      setShowAddModal(false);
-      setNewTask({ subject: 'Maths', topic: '', type: 'Practice', duration_mins: 30 });
-      fetchDashboardData();
     } catch (err) {
       console.error("Try-catch error:", err);
-      alert("Error: " + err.message);
+    }
+  };
+
+  const handleInlineAddTask = async (e) => {
+    e.preventDefault();
+    if (!inlineTask.trim()) return;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const optimisticTask = {
+      id: Date.now().toString(),
+      user_id: currentUser?.id,
+      subject: 'General',
+      topic: inlineTask,
+      type: 'Task',
+      duration_mins: 30,
+      status: 'pending',
+      action_date: todayStr
+    };
+
+    // Optimistic Update
+    setActionPlan([optimisticTask, ...actionPlan]);
+    setInlineTask('');
+
+    try {
+      const { error } = await supabase.from('user_actions').insert([{
+        user_id: currentUser.id,
+        subject: optimisticTask.subject,
+        topic: optimisticTask.topic,
+        type: optimisticTask.type,
+        duration_mins: optimisticTask.duration_mins,
+        status: 'pending',
+        action_date: todayStr
+      }]);
+
+      if (error) {
+         console.error("Supabase insert error:", error);
+      } else {
+         fetchDashboardData();
+      }
+    } catch (err) {
+      console.error("Try-catch error:", err);
     }
   };
 
@@ -217,35 +271,56 @@ export default function HomeDashboard() {
                  <Plus size={16}/> Add Task
                </Button>
             </div>
-            <Card className="flex flex-col gap-4">
-              {loading ? (
-                <div className="text-center text-muted p-4">Loading action plan...</div>
-              ) : actionPlan.length === 0 ? (
-                <div className="text-center text-muted p-6 border-2 border-dashed border-color rounded-xl">
-                    <p className="mb-3">You have no tasks planned for today.</p>
-                    <Button onClick={() => setShowAddModal(true)}>Set Today's Target</Button>
-                </div>
-              ) : (
-                actionPlan.map(task => (
-                  <div key={task.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-main transition" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-main)' }}>
-                    <div className="flex items-center gap-3">
-                       <button onClick={() => toggleTaskStatus(task.id, task.status)} className="focus:outline-none">
-                         {task.status === 'completed' ? 
-                           <CheckCircle2 color="var(--success)" size={26} className="cursor-pointer" /> : 
-                           <Circle color="var(--text-muted)" size={26} className="cursor-pointer" />
-                         }
-                       </button>
-                       <div>
-                         <div className={`font-semibold ${task.status === 'completed' ? 'line-through text-muted' : ''}`}>{task.topic}</div>
-                         <div className="text-xs text-muted mt-1">{task.subject} • {task.duration_mins} mins</div>
-                       </div>
-                    </div>
-                    <Badge variant={task.type === 'Mock Test' ? 'danger' : task.type === 'Practice' ? 'primary' : 'warning'}>
-                      {task.type}
-                    </Badge>
+            <Card className="flex flex-col gap-0 p-0 overflow-hidden" style={{ minHeight: '300px' }}>
+              <div className="p-4" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+                <form onSubmit={handleInlineAddTask} className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Add a new task..." 
+                    value={inlineTask}
+                    onChange={(e) => setInlineTask(e.target.value)}
+                    className="flex-1 border bg-white dark:bg-gray-800 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary transition shadow-sm"
+                    style={{ borderColor: 'var(--border-color)' }}
+                  />
+                  <Button type="submit" className="rounded-lg px-6 font-bold">Add</Button>
+                </form>
+              </div>
+
+              <div className="flex flex-col p-4 gap-3 bg-bg-main" style={{ flexGrow: 1, overflowY: 'auto' }}>
+                {loading && actionPlan.length === 0 ? (
+                  <div className="text-center text-muted p-4">Loading action plan...</div>
+                ) : actionPlan.length === 0 ? (
+                  <div className="text-center text-muted p-6 flex flex-col items-center justify-center h-full">
+                      <p className="mb-2 text-lg">No tasks for today yet.</p>
+                      <p className="text-sm opacity-70 mb-4">Add your first task above to get started!</p>
+                      <Button variant="outline" size="sm" onClick={() => setShowAddModal(true)}>Detailed Plan</Button>
                   </div>
-                ))
-              )}
+                ) : (
+                  actionPlan.map(task => (
+                    <div key={task.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-bg-card transition shadow-sm border" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+                      <div className="flex items-center gap-3">
+                         <button onClick={() => toggleTaskStatus(task.id, task.status)} className="focus:outline-none hover:scale-110 transition shrink-0">
+                           {task.status === 'completed' ? 
+                             <CheckCircle2 color="var(--success)" size={26} className="cursor-pointer" /> : 
+                             <Circle color="var(--text-muted)" size={26} className="cursor-pointer" />
+                           }
+                         </button>
+                         <div>
+                           <div className={`font-semibold text-[15px] ${task.status === 'completed' ? 'line-through text-muted' : ''}`}>{task.topic}</div>
+                           {task.subject !== 'General' && (
+                             <div className="text-xs text-muted mt-0.5">{task.subject} • {task.duration_mins} mins</div>
+                           )}
+                         </div>
+                      </div>
+                      {task.type && task.type !== 'Task' && (
+                        <Badge variant={task.type === 'Mock Test' ? 'danger' : task.type === 'Practice' ? 'primary' : 'warning'}>
+                          {task.type}
+                        </Badge>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
             </Card>
           </section>
 
