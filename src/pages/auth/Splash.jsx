@@ -47,7 +47,7 @@ export default function Splash() {
         </ul>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', width: '100%', maxWidth: '300px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', width: '100%', maxWidth: '300px', zIndex: 10 }}>
          <Button 
            variant="secondary" 
            size="lg" 
@@ -65,6 +65,27 @@ export default function Splash() {
            Browse Free Material
          </Button>
       </div>
+
+      {/* Footer Links for AdSense Compliance */}
+      <footer style={{ 
+          marginTop: 'auto', 
+          paddingTop: 'var(--space-8)', 
+          fontSize: '0.75rem', 
+          opacity: 0.8, 
+          display: 'flex', 
+          gap: 'var(--space-4)', 
+          flexWrap: 'wrap', 
+          justifyContent: 'center',
+          position: 'absolute',
+          bottom: '16px',
+          width: '100%'
+      }}>
+          <button onClick={() => navigate('/privacy-policy')} className="hover:underline">Privacy Policy</button>
+          <span>|</span>
+          <button onClick={() => navigate('/terms')} className="hover:underline">Terms of Service</button>
+          <span>|</span>
+          <button onClick={() => navigate('/contact')} className="hover:underline">Contact Us</button>
+      </footer>
     </div>
   );
 }

@@ -8,6 +8,11 @@ import Splash from './pages/auth/Splash';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 
+// Legal Pages
+import PrivacyPolicy from './pages/legal/PrivacyPolicy';
+import TermsOfService from './pages/legal/TermsOfService';
+import ContactUs from './pages/legal/ContactUs';
+
 // Protected App Pages
 import HomeDashboard from './pages/dashboard/HomeDashboard';
 import DailyStudyPlan from './pages/study/DailyStudyPlan';
@@ -40,6 +45,11 @@ export default function App() {
           <Route path="/" element={<Splash />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          
+          {/* Public Legal Pages for AdSense Compliance */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/contact" element={<ContactUs />} />
 
           {/* Main App flow wrapped in Layout */}
           <Route element={<AppLayout />}>
