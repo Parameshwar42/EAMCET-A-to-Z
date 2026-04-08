@@ -13,9 +13,7 @@ export default function Sidebar() {
     { path: '/practice', label: 'Practice', icon: 'PenLine' },
     { path: '/mock-tests', label: 'Mock Tests', icon: 'FileText' },
     { path: '/revision', label: 'Revision', icon: 'MessageCircle' }, // re-using icon for demo
-    { path: '/materials', label: 'Materials', icon: 'Library' },
-    { path: '/video-lessons', label: 'Videos', icon: 'PlayCircle' },
-    { path: '/analytics', label: 'Analytics', icon: 'BarChart3' },
+    { path: '/materials', label: 'AP&TS PYQs', icon: 'Library' },
     { path: '/profile', label: 'Profile', icon: 'User' },
   ];
 

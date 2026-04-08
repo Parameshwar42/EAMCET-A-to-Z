@@ -9,7 +9,7 @@ import { supabase } from '../../config/supabase';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [module, setModule] = useState('video'); // video, test, practice, revision, plan, pdf_exam
+  const [module, setModule] = useState('materials'); // video, test, practice, revision, plan, pdf_exam
   const [mode, setMode] = useState('add'); // add, manage
   const [msg, setMsg] = useState({ text: '', type: '' });
   const [loading, setLoading] = useState(false);
@@ -174,7 +174,6 @@ export default function AdminDashboard() {
       {/* Module Navigation */}
       <div className="flex flex-wrap gap-2 mb-4 bg-bg-card p-2 rounded-xl border border-color shadow-sm">
          {[
-           { id: 'video', label: 'Videos', icon: Video, color: 'primary' },
            { id: 'materials', label: 'Materials', icon: Library, color: 'primary' },
            { id: 'test', label: 'Tests', icon: FileText, color: 'primary' },
            { id: 'practice', label: 'Practice', icon: PenLine, color: 'primary' },
@@ -207,6 +206,13 @@ export default function AdminDashboard() {
       {/* ADD / CREATE MODE */}
       {mode === 'add' && (
          <form onSubmit={handleSave} className="flex flex-col gap-4">
+            <datalist id="subject-options">
+               <option value="AP EAMCET PYQs" />
+               <option value="TS EAMCET PYQs" />
+               <option value="Maths" />
+               <option value="Physics" />
+               <option value="Chemistry" />
+            </datalist>
             {module === 'pdf_exam' && !editingId ? (
               <div className="md:col-span-2 space-y-4">
                  <div className="bg-primary-light p-4 rounded-xl border border-primary border-opacity-20 mb-2">
@@ -226,7 +232,7 @@ export default function AdminDashboard() {
             ) : module === 'materials' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input label="Title" placeholder="Enter title" value={formData.title || ''} onChange={(e)=>setFormData({...formData, title: e.target.value})} required/>
-                <Input label="Subject Tag" placeholder="Physics" value={formData.subject || ''} onChange={(e)=>setFormData({...formData, subject: e.target.value})} required/>
+                <Input label="Subject Tag" placeholder="e.g. AP EAMCET PYQs" value={formData.subject || ''} onChange={(e)=>setFormData({...formData, subject: e.target.value})} list="subject-options" required/>
                 <Input label="Type (Notes/Formulas/PYQ)" placeholder="Notes" value={formData.type || ''} onChange={(e)=>setFormData({...formData, type: e.target.value})} required/>
                 
                 <div className="flex flex-col gap-2 relative">
@@ -250,7 +256,7 @@ export default function AdminDashboard() {
                 <Input label="Title" placeholder="Enter title" value={formData.title || formData.name || formData.topic || ''} onChange={(e)=>setFormData({...formData, title: e.target.value, name: e.target.value, topic: e.target.value})} />
                 {module === 'video' && <Input label="Video URL" placeholder="YouTube Link" value={formData.video_url || formData.url || ''} onChange={(e)=>setFormData({...formData, url: e.target.value})} />}
                 {(module === 'test' || module === 'pdf_exam') && <Input label="Duration (Mins)" type="number" value={formData.duration_mins || ''} onChange={(e)=>setFormData({...formData, duration_mins: e.target.value})} />}
-                <Input label="Subject Tag" placeholder="Physics" value={formData.subject || ''} onChange={(e)=>setFormData({...formData, subject: e.target.value})} />
+                <Input label="Subject Tag" placeholder="e.g. AP EAMCET PYQs" value={formData.subject || ''} onChange={(e)=>setFormData({...formData, subject: e.target.value})} list="subject-options" />
                 <Input label="External URL / File Link" placeholder="https://..." value={formData.file_url || formData.url || formData.content_url || ''} onChange={(e)=>setFormData({...formData, file_url: e.target.value, url: e.target.value, content_url: e.target.value})} />
               </div>
             )}

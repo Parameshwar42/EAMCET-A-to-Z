@@ -4,8 +4,7 @@ import * as Icons from 'lucide-react';
 
 const bottomNavItems = [
   { path: '/dashboard', label: 'Home', icon: 'LayoutDashboard' },
-  { path: '/video-lessons', label: 'Videos', icon: 'PlayCircle' },
-  { path: '/practice', label: 'Practice', icon: 'PenLine' },
+  { path: '/materials', label: 'PYQs', icon: 'Library' },
   { path: '/mock-tests', label: 'Tests', icon: 'FileText' },
   { path: '/profile', label: 'Profile', icon: 'User' },
 ];

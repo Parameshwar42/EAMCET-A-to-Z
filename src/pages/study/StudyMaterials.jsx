@@ -45,9 +45,9 @@ export default function StudyMaterials() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="h2 font-bold text-main flex items-center gap-2">
-            <Library className="text-primary" /> Study Materials
+            <Library className="text-primary" /> AP & TS PYQ's
           </h1>
-          <p className="text-muted mt-1">Download PDF notes, cheat sheets, and important formulas.</p>
+          <p className="text-muted mt-1">Download previous year question papers for AP & TS EAMCET.</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">

@@ -380,7 +380,7 @@ export default function HomeDashboard() {
                  </div>
                )}
                <div onClick={() => navigate('/materials')} className="flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer hover:bg-main" style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)' }}>
-                 <div className="font-bold mb-1">Formula Book</div>
+                 <div className="font-bold mb-1">AP&TS PYQs</div>
                </div>
                <div className="flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer hover:bg-main" style={{ backgroundColor: 'var(--danger-light)', color: 'var(--danger)' }}>
                  <div className="font-bold mb-1">My Mistakes</div>
