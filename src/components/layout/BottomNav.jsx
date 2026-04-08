@@ -60,17 +60,20 @@ export default function BottomNav() {
             })}
           >
             {({ isActive }) => (
-              <>
-                <div style={{
-                  padding: '6px 12px',
-                  borderRadius: '16px',
-                  backgroundColor: isActive ? 'var(--primary-light)' : 'transparent',
-                  transition: 'background-color 0.2s'
-                }}>
-                  <IconComponent size={20} color={isActive ? activeColor : 'var(--text-muted)'} />
-                </div>
-                <span>{item.label}</span>
-              </>
+              <div className="relative flex flex-col items-center p-1 w-full">
+                {isActive && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-b-full"></div>
+                )}
+                <IconComponent 
+                   size={22} 
+                   color={isActive ? activeColor : 'var(--text-muted)'} 
+                   strokeWidth={isActive ? 2.5 : 2}
+                   className={`transition-all duration-300 ${isActive ? '-translate-y-1' : ''}`}
+                />
+                <span className={`text-[10px] mt-1 transition-all ${isActive ? 'font-bold opacity-100' : 'font-medium opacity-80'}`}>
+                   {item.label}
+                </span>
+              </div>
             )}
           </NavLink>
         );

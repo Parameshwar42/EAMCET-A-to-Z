@@ -249,3 +249,35 @@ img {
   transform: translateY(-10px);
   transition: opacity 300ms, transform 300ms;
 }
+
+/* EdTech Layout Utilities */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.swipe-carousel-mobile {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: var(--space-4);
+  gap: var(--space-4);
+}
+.swipe-carousel-item {
+  scroll-snap-align: center;
+  flex: 0 0 calc(85% - var(--space-4));
+}
+@media (min-width: 768px) {
+  .swipe-carousel-mobile {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+  .swipe-carousel-item {
+    flex: none;
+  }
+}

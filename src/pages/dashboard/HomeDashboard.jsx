@@ -324,24 +324,24 @@ export default function HomeDashboard() {
             </Card>
           </section>
 
-          {/* Subject Progress */}
+          {/* Subject Mastery Carousel */}
           <section>
-            <h2 className="h3 font-bold mb-4">Subject Mastery</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-               <Card className="flex flex-col items-center justify-center text-center">
-                  <h3 className="font-semibold mb-4">Maths</h3>
+            <h2 className="h3 font-bold mb-4 px-1">Subject Mastery</h2>
+            <div className="swipe-carousel-mobile hide-scrollbar">
+               <Card className="swipe-carousel-item flex flex-col items-center justify-center text-center !p-6 shadow-sm border-0 bg-white">
+                  <h3 className="font-semibold mb-4 text-main">Maths</h3>
                   <ProgressRing percentage={mastery.Maths} color="var(--primary)" />
-                  <p className="text-xs text-muted mt-4">Based on completed tasks</p>
+                  <p className="text-xs text-muted mt-4 font-medium">Based on completed tasks</p>
                </Card>
-               <Card className="flex flex-col items-center justify-center text-center">
-                  <h3 className="font-semibold mb-4">Physics</h3>
+               <Card className="swipe-carousel-item flex flex-col items-center justify-center text-center !p-6 shadow-sm border-0 bg-white">
+                  <h3 className="font-semibold mb-4 text-main">Physics</h3>
                   <ProgressRing percentage={mastery.Physics} color="var(--warning)" />
-                  <p className="text-xs text-muted mt-4">Based on completed tasks</p>
+                  <p className="text-xs text-muted mt-4 font-medium">Based on completed tasks</p>
                </Card>
-               <Card className="flex flex-col items-center justify-center text-center">
-                  <h3 className="font-semibold mb-4">Chemistry</h3>
+               <Card className="swipe-carousel-item flex flex-col items-center justify-center text-center !p-6 shadow-sm border-0 bg-white">
+                  <h3 className="font-semibold mb-4 text-main">Chemistry</h3>
                   <ProgressRing percentage={mastery.Chemistry} color="var(--success)" />
-                  <p className="text-xs text-muted mt-4">Based on completed tasks</p>
+                  <p className="text-xs text-muted mt-4 font-medium">Based on completed tasks</p>
                </Card>
             </div>
           </section>
@@ -369,30 +369,47 @@ export default function HomeDashboard() {
               </p>
            </Card>
 
-           {/* Quick Actions */}
-           <Card>
-             <h3 className="font-semibold mb-4">Quick Tools</h3>
-             <div className="grid grid-cols-2 gap-3">
+           {/* Quick Actions (App-style grid) */}
+           <section className="mb-2">
+             <h3 className="font-semibold mb-4 px-1">Quick Tools</h3>
+             <div className="grid grid-cols-4 gap-4">
+               <div onClick={() => navigate('/materials')} className="flex flex-col items-center gap-2 cursor-pointer group">
+                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary-light text-primary group-hover:scale-105 transition shadow-sm border border-primary border-opacity-10">
+                    <Library size={24} />
+                 </div>
+                 <div className="text-[10px] sm:text-xs font-bold text-center text-text-main leading-tight">AP&TS<br/>PYQs</div>
+               </div>
+               
+               <div className="flex flex-col items-center gap-2 cursor-pointer group">
+                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-danger-light text-danger group-hover:scale-105 transition shadow-sm border border-danger border-opacity-10">
+                    <Target size={24} />
+                 </div>
+                 <div className="text-[10px] sm:text-xs font-bold text-center text-text-main leading-tight">My<br/>Mistakes</div>
+               </div>
+               
+               <div className="flex flex-col items-center gap-2 cursor-pointer group">
+                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-warning-light text-warning-dark group-hover:scale-105 transition shadow-sm border border-warning border-opacity-20">
+                    <Edit2 size={24} />
+                 </div>
+                 <div className="text-[10px] sm:text-xs font-bold text-center text-text-main leading-tight">Ask<br/>Doubt</div>
+               </div>
+               
+               <div onClick={() => navigate('/leaderboard')} className="flex flex-col items-center gap-2 cursor-pointer group">
+                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-success-light text-success group-hover:scale-105 transition shadow-sm border border-success border-opacity-10">
+                    <Flame size={24} />
+                 </div>
+                 <div className="text-[10px] sm:text-xs font-bold text-center text-text-main leading-tight">Leader<br/>board</div>
+               </div>
+               
                {isAdmin && (
-                 <div onClick={() => navigate('/admin')} className="flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer hover:bg-main col-span-2 mb-2 border border-danger-light" style={{ backgroundColor: 'var(--danger-light)', color: 'var(--danger)' }}>
-                   <div className="font-bold flex items-center gap-2"><ShieldAlert size={18}/> Admin System Hub</div>
-                   <div className="text-xs text-danger mt-1 text-center font-semibold">Logged in as admin</div>
+                 <div onClick={() => navigate('/admin')} className="flex flex-col items-center gap-2 cursor-pointer group lg:col-span-1 col-span-4 mt-2">
+                   <div className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 bg-danger-light text-danger font-bold hover:bg-danger hover:text-white transition shadow-sm">
+                      <ShieldAlert size={18}/> Admin Hub
+                   </div>
                  </div>
                )}
-               <div onClick={() => navigate('/materials')} className="flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer hover:bg-main" style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)' }}>
-                 <div className="font-bold mb-1">AP&TS PYQs</div>
-               </div>
-               <div className="flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer hover:bg-main" style={{ backgroundColor: 'var(--danger-light)', color: 'var(--danger)' }}>
-                 <div className="font-bold mb-1">My Mistakes</div>
-               </div>
-               <div className="flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer hover:bg-main" style={{ backgroundColor: 'var(--warning-light)', color: 'var(--warning)' }}>
-                 <div className="font-bold mb-1">Ask Doubt</div>
-               </div>
-               <div className="flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer hover:bg-main" style={{ backgroundColor: 'var(--success-light)', color: 'var(--success)' }}>
-                 <div className="font-bold mb-1">Leaderboard</div>
-               </div>
              </div>
-           </Card>
+           </section>
 
            {/* Recent Scores */}
            <Card>
