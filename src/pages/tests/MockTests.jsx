@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
-import { Clock, PlayCircle, CheckCircle, FileText, Trophy, BarChart2 } from 'lucide-react';
+import Skeleton from '../../components/ui/Skeleton';
+import { Clock, PlayCircle, CheckCircle, FileText, Trophy, BarChart2, ShieldCheck, ChevronRight, Search } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import { useAuth } from '../../context/AuthContext';
 
@@ -26,17 +27,19 @@ export default function MockTests() {
 
   const fetchTests = async () => {
     setLoading(true);
-    const { data } = await supabase.from('pdf_exams').select('*').eq('is_active', true).order('created_at', { ascending: false });
-    if (data) {
-      setTests(data);
-      const counts = {};
-      await Promise.all(data.map(async (exam) => {
-        const { count } = await supabase.from('exam_questions').select('id', { count: 'exact', head: true }).eq('exam_id', exam.id);
-        counts[exam.id] = count || 0;
-      }));
-      setQuestionCounts(counts);
-    }
-    setLoading(false);
+    try {
+      const { data } = await supabase.from('pdf_exams').select('*').eq('is_active', true).order('created_at', { ascending: false });
+      if (data) {
+        setTests(data);
+        const counts = {};
+        await Promise.all(data.map(async (exam) => {
+          const { count } = await supabase.from('exam_questions').select('id', { count: 'exact', head: true }).eq('exam_id', exam.id);
+          counts[exam.id] = count || 0;
+        }));
+        setQuestionCounts(counts);
+      }
+    } catch (e) { console.error(e); }
+    setTimeout(() => setLoading(false), 800);
   };
 
   const fetchSubmissions = async () => {
@@ -47,70 +50,98 @@ export default function MockTests() {
       .eq('user_id', currentUser.id)
       .order('submitted_at', { ascending: false });
     if (data) setSubmissions(data);
-    setLoading(false);
+    setTimeout(() => setLoading(false), 800);
   };
 
   return (
-    <div className="p-4 md:p-6 animate-fade-in pb-24" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <h1 className="h2 font-bold mb-2">Live MCQ Assessments</h1>
-      <p className="subtitle mb-6">Interactive MCQ exams with instant auto-grading and full answer review.</p>
+    <div className="p-4 md:p-6 animate-fade-in pb-24 relative" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      
+      {/* Header Area */}
+      <div className="mb-8">
+        <h1 className="h2 font-black text-main flex items-center gap-2">
+           <Trophy className="text-warning" size={28} /> Advanced Assessments
+        </h1>
+        <p className="text-muted text-sm mt-1 font-medium">Test your preparation with live patterns & instant results.</p>
+      </div>
 
-      {/* Tabs */}
-      <div className="flex gap-6 border-b border-color mb-6">
+      {/* Modern Tabs */}
+      <div className="flex p-1 bg-bg-card rounded-2xl border border-color mb-8 shadow-sm max-w-sm">
         {[
-          { key: 'active', label: '🟢 Available Exams' },
-          { key: 'completed', label: '📊 My Results' }
+          { key: 'active', label: 'EAMCET Exams', icon: PlayCircle },
+          { key: 'completed', label: 'My Progress', icon: BarChart2 }
         ].map(t => (
-          <div key={t.key} onClick={() => setActiveTab(t.key)}
-            className={`pb-3 font-semibold cursor-pointer transition ${activeTab === t.key ? 'text-primary' : 'text-muted hover:text-primary'}`}
-            style={{ borderBottom: activeTab === t.key ? '2px solid var(--primary)' : '2px solid transparent' }}>
+          <button 
+            key={t.key} 
+            onClick={() => setActiveTab(t.key)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-black transition-all ${
+              activeTab === t.key 
+                ? 'bg-primary text-white shadow-md' 
+                : 'text-muted hover:bg-main'
+            }`}
+          >
+            <t.icon size={16} />
             {t.label}
-          </div>
+          </button>
         ))}
       </div>
 
       {/* ── ACTIVE EXAMS ── */}
       {activeTab === 'active' && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-5">
           {loading ? (
-            <div className="text-center p-8 text-primary font-bold animate-pulse">Loading exams...</div>
+             [1,2,3].map(i => (
+               <Card key={i} className="flex flex-col md:flex-row items-center gap-4 p-5">
+                  <Skeleton width="64px" height="64px" borderRadius="16px" />
+                  <div className="flex-1 space-y-2 w-full">
+                     <Skeleton width="100px" height="0.8rem" />
+                     <Skeleton width="60%" height="1.2rem" />
+                     <Skeleton width="40%" height="0.8rem" />
+                  </div>
+                  <Skeleton width="120px" height="44px" borderRadius="12px" />
+               </Card>
+             ))
           ) : tests.length === 0 ? (
-            <div className="text-center p-12 text-muted font-semibold border-2 border-dashed border-color rounded-xl">
-              No active exams available right now.<br />
-              <span className="text-sm font-normal mt-2 inline-block">Ask your admin to upload one!</span>
+            <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-color">
+              <div className="w-16 h-16 bg-bg-main rounded-full flex items-center justify-center mx-auto mb-4">
+                 <FileText size={32} className="text-muted opacity-30" />
+              </div>
+              <p className="font-bold text-main">No Test Available</p>
+              <p className="text-xs text-muted mt-1">Check back soon for new assessments.</p>
             </div>
           ) : tests.map((test) => {
             const qCount = questionCounts[test.id] ?? 0;
             const hasQuestions = qCount > 0;
             return (
-              <Card key={test.id} className="flex flex-col md:flex-row md:items-center gap-4 hover:border-primary transition group shadow-sm">
-                <div style={{ background: 'var(--primary-light)', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', flexShrink: 0 }}>
-                  <FileText size={28} style={{ color: 'var(--primary)' }} />
+              <Card key={test.id} className="group flex flex-col md:flex-row md:items-center gap-5 p-5 hover:shadow-xl hover:border-primary transition-all bg-white border-color overflow-hidden relative">
+                <div className="w-16 h-16 bg-primary-light rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:rotate-6 transition-transform">
+                  <ShieldCheck size={32} className="text-primary" />
                 </div>
-                <div className="flex-1">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
-                    <Badge variant="primary" className="text-[10px] uppercase tracking-wider font-bold">Live MCQ</Badge>
-                    {hasQuestions
-                      ? <span style={{ background: 'var(--success-light)', color: 'var(--success)', fontSize: '0.7rem', fontWeight: '700', padding: '0.15rem 0.6rem', borderRadius: '999px' }}>✅ {qCount} Questions Ready</span>
-                      : <span style={{ background: 'var(--warning-light)', color: 'var(--warning)', fontSize: '0.7rem', fontWeight: '700', padding: '0.15rem 0.6rem', borderRadius: '999px' }}>⚠️ Questions Loading Soon</span>
-                    }
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="primary" className="!bg-primary !text-white !text-[8px] tracking-widest px-2 uppercase font-black">Live Assessment</Badge>
+                    {hasQuestions && (
+                       <div className="flex items-center gap-1 text-[9px] font-black text-success uppercase">
+                         <div className="w-1.5 h-1.5 rounded-full bg-success animate-ping"></div> Available Now
+                       </div>
+                    )}
                   </div>
-                  <h3 className="h3 font-bold mb-1 text-text-main group-hover:text-primary transition">{test.title}</h3>
-                  <div className="flex flex-wrap gap-4 text-sm font-semibold text-muted mt-1">
-                    <span className="flex items-center gap-1"><Clock size={15} /> {test.duration_mins} Mins</span>
-                    <span className="flex items-center gap-1"><CheckCircle size={15} /> {test.questions_count} Questions</span>
+                  
+                  <h3 className="font-black text-main text-[17px] mb-2 group-hover:text-primary transition">{test.title}</h3>
+                  
+                  <div className="flex items-center gap-5 text-[11px] font-bold text-muted">
+                    <span className="flex items-center gap-1.5"><Clock size={14} className="text-primary" /> {test.duration_mins} MINS</span>
+                    <span className="flex items-center gap-1.5"><FileText size={14} className="text-primary" /> {test.questions_count || qCount} QUESTIONS</span>
                   </div>
                 </div>
-                <div className="flex md:flex-col gap-3 w-full md:w-auto mt-3 md:mt-0">
-                  <Button
-                    variant="primary"
-                    className="flex-1 md:w-44 font-bold shadow-lg"
-                    onClick={() => navigate(`/exam/${test.id}`)}
-                    disabled={!hasQuestions}>
-                    <PlayCircle size={18} className="mr-2" />
-                    {hasQuestions ? 'Start Exam' : 'Coming Soon'}
-                  </Button>
-                </div>
+
+                <Button
+                  variant="primary"
+                  className="rounded-xl h-12 px-8 font-black text-xs uppercase tracking-widest shadow-lg shadow-primary-light flex items-center justify-center gap-2"
+                  onClick={() => navigate(`/exam/${test.id}`)}
+                  disabled={!hasQuestions}>
+                  {hasQuestions ? <><PlayCircle size={18} /> Start Exam</> : 'Syncing Data...'}
+                </Button>
               </Card>
             );
           })}
@@ -119,34 +150,47 @@ export default function MockTests() {
 
       {/* ── MY RESULTS ── */}
       {activeTab === 'completed' && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-5">
           {!currentUser ? (
-            <div className="text-center p-12 text-muted font-semibold border-2 border-dashed border-color rounded-xl">Please log in to see your results.</div>
+            <div className="text-center p-12 text-muted">Please log in to see results.</div>
           ) : loading ? (
-            <div className="text-center p-8 text-primary font-bold animate-pulse">Fetching your results...</div>
+            [1,2].map(i => (
+              <Card key={i} className="p-5 flex flex-col gap-3">
+                 <Skeleton width="150px" height="0.8rem" />
+                 <Skeleton width="100%" height="1.5rem" />
+                 <Skeleton width="50%" height="0.8rem" />
+              </Card>
+            ))
           ) : submissions.length === 0 ? (
-            <div className="text-center p-12 text-muted font-semibold border-2 border-dashed border-color rounded-xl">
-              No completed exams yet.<br />
-              <span className="text-sm font-normal mt-2 inline-block">Take an exam to see your results here!</span>
+            <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-color">
+              <Trophy size={48} className="mx-auto text-muted opacity-20 mb-4" />
+              <p className="font-bold text-main">No Scorecards Yet</p>
+              <p className="text-xs text-muted mt-1">Your performance analytics will appear here.</p>
             </div>
           ) : submissions.map((sub) => {
             const pct = Math.round((sub.score / sub.total) * 100);
             const passed = pct >= 40;
             return (
-              <Card key={sub.id} className="flex flex-col md:flex-row md:items-center gap-4">
-                <div style={{ background: passed ? 'var(--success-light)' : 'var(--danger-light)', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', flexShrink: 0 }}>
-                  <Trophy size={28} style={{ color: passed ? 'var(--success)' : 'var(--danger)' }} />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-text-main mb-1">{sub.pdf_exams?.title || 'Exam'}</h3>
-                  <div className="flex flex-wrap gap-3 text-sm text-muted font-semibold mt-1">
-                    <span className="flex items-center gap-1"><BarChart2 size={15} /> {sub.score} / {sub.total} correct</span>
-                    <span className="flex items-center gap-1"><Clock size={15} /> {new Date(sub.submitted_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+              <Card key={sub.id} className="relative overflow-hidden group p-0 border-0 shadow-lg bg-white rounded-3xl">
+                <div className={`h-1.5 w-full ${passed ? 'bg-success' : 'bg-danger'}`}></div>
+                <div className="p-6 flex flex-col md:flex-row md:items-center gap-6">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${passed ? 'bg-success-light text-success' : 'bg-danger-light text-danger'}`}>
+                    <Trophy size={28} />
                   </div>
-                </div>
-                <div style={{ textAlign: 'center', padding: '0.75rem 1.5rem', background: passed ? 'var(--success-light)' : 'var(--danger-light)', borderRadius: '12px', flexShrink: 0 }}>
-                  <div style={{ fontSize: '1.75rem', fontWeight: '800', color: passed ? 'var(--success)' : 'var(--danger)' }}>{pct}%</div>
-                  <div style={{ fontSize: '0.7rem', fontWeight: '700', color: passed ? 'var(--success)' : 'var(--danger)' }}>{passed ? '✅ PASSED' : '❌ FAILED'}</div>
+                  
+                  <div className="flex-1">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-muted mb-1">Performance Summary</div>
+                    <h3 className="font-black text-main text-lg mb-2">{sub.pdf_exams?.title || 'Exam Assessment'}</h3>
+                    <div className="flex flex-wrap gap-4 text-[11px] font-bold text-muted">
+                      <span className="flex items-center gap-1.5"><BarChart2 size={14} /> Score: {sub.score}/{sub.total}</span>
+                      <span className="flex items-center gap-1.5"><Clock size={14} /> {new Date(sub.submitted_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+                    </div>
+                  </div>
+                  
+                  <div className={`flex flex-col items-center justify-center px-8 py-3 rounded-2xl ${passed ? 'bg-success-light text-success' : 'bg-danger-light text-danger'}`}>
+                    <div className="text-3xl font-black leading-none">{pct}%</div>
+                    <div className="text-[9px] font-black uppercase tracking-widest mt-1 opacity-80">{passed ? 'Qualified' : 'Requires Review'}</div>
+                  </div>
                 </div>
               </Card>
             );
@@ -156,3 +200,4 @@ export default function MockTests() {
     </div>
   );
 }
+
