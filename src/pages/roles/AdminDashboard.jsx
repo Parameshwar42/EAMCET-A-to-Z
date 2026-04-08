@@ -327,7 +327,8 @@ export default function AdminDashboard() {
                         {module === 'transactions' ? (
                            <>
                              {item.status !== 'verified' && <Button onClick={() => handleTransactionAction(item, 'verified')} variant="outline" size="sm" className="text-success border-success">Verify</Button>}
-                             {item.status !== 'rejected' && <Button onClick={() => handleTransactionAction(item, 'rejected')} variant="danger" size="sm" className="flex items-center gap-1"><XCircle size={14}/> Reject / Fraud</Button>}
+                             {item.status !== 'rejected' && <Button onClick={() => handleTransactionAction(item, 'rejected')} variant="warning" size="sm" className="flex items-center gap-1"><XCircle size={14}/> Reject / Fraud</Button>}
+                             <Button onClick={()=>handleDelete(item.id)} variant="danger" size="sm" className="flex items-center gap-1"><Trash2 size={14}/> Delete</Button>
                            </>
                         ) : (
                            <>
