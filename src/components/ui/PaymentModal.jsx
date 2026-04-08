@@ -16,17 +16,24 @@ export default function PaymentModal({ isOpen, onClose, amount = 99, currentUser
     let interval;
     if (step === 2 && utrNumber) {
       interval = setInterval(async () => {
-        const { data } = await supabase.from('transactions').select('status').eq('utr_number', utrNumber).single();
-        
-        if (data?.status === 'verified') {
-          clearInterval(interval);
-          alert("🎉 SUCCESS! Payment Verified by Admin. All Premium PDFs are now UNLOCKED!");
-          if (onSuccess) onSuccess();
-          onClose();
-        } else if (data?.status === 'rejected') {
-          clearInterval(interval);
-          alert("❌ FRAUD ALERT: Payment Rejected! Your UTR number was invalid or money was not received.");
-          setStep(1);
+        try {
+          const { data, error } = await supabase.from('transactions').select('status').eq('utr_number', utrNumber).order('created_at', { ascending: false }).limit(1);
+          
+          if (data && data.length > 0) {
+            const currentStatus = data[0].status;
+            if (currentStatus === 'verified') {
+              clearInterval(interval);
+              alert("🎉 SUCCESS! Payment Verified by Admin. All Premium PDFs are now UNLOCKED!");
+              if (onSuccess) onSuccess();
+              onClose();
+            } else if (currentStatus === 'rejected') {
+              clearInterval(interval);
+              alert("❌ FRAUD ALERT: Payment Rejected! Your UTR number was invalid or money was not received.");
+              setStep(1);
+            }
+          }
+        } catch (e) {
+          console.error("Polling error", e);
         }
       }, 3000); // Check every 3 seconds
     }
