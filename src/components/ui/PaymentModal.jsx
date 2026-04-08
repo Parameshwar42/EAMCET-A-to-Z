@@ -1,15 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from './Card';
 import Button from './Button';
 import Input from './Input';
 import { X, ShieldCheck, Copy, CheckCircle2, AlertTriangle, Clock } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 
-export default function PaymentModal({ isOpen, onClose, amount = 99, currentUser }) {
+export default function PaymentModal({ isOpen, onClose, amount = 99, currentUser, onSuccess }) {
   const [utrNumber, setUtrNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState(1); // 1 = QR code, 2 = Pending Approval
+
+  // Live polling for Admin Verification
+  useEffect(() => {
+    let interval;
+    if (step === 2 && utrNumber) {
+      interval = setInterval(async () => {
+        const { data } = await supabase.from('transactions').select('status').eq('utr_number', utrNumber).single();
+        
+        if (data?.status === 'verified') {
+          clearInterval(interval);
+          alert("🎉 SUCCESS! Payment Verified by Admin. All Premium PDFs are now UNLOCKED!");
+          if (onSuccess) onSuccess();
+          onClose();
+        } else if (data?.status === 'rejected') {
+          clearInterval(interval);
+          alert("❌ FRAUD ALERT: Payment Rejected! Your UTR number was invalid or money was not received.");
+          setStep(1);
+        }
+      }, 3000); // Check every 3 seconds
+    }
+    return () => clearInterval(interval);
+  }, [step, utrNumber]);
 
   // THE DIRECT UPI ID
   const upiId = "omegrowoffical@okaxis"; 
