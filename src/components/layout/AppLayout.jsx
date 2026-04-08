@@ -3,6 +3,7 @@ import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from './Sidebar';
 import BottomNav from './BottomNav';
+import TopHeader from './TopHeader';
 
 export default function AppLayout() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -26,28 +27,23 @@ export default function AppLayout() {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    // offset for desktop sidebar
     marginLeft: '0', 
     transition: 'margin 0.3s'
   };
-
-  // Add styles via className to inherit from index.css media queries
-  // For desktop (lg): Sidebar is 260px and visible, so main area needs marginLeft: 260px.
-  // The Sidebar component uses fixed positioning in desktop.
 
   return (
     <div style={wrapperStyle}>
       <Sidebar />
       <main 
-        className="pb-20 lg:pb-0" // Add padding to bottom in mobile for BottomNav
-        style={{
-          ...mainAreaStyle,
-          width: '100%',
-          overflowX: 'hidden'
-        }}
+        className="pb-20 lg:pb-0 w-full overflow-x-hidden"
+        style={mainAreaStyle}
       >
-        <div style={{ marginLeft: 0 }} className="lg-margin-left-260">
-           {/* Add a global dynamic style for desktop offset in next css file or inline */}
+        <div className="lg-margin-left-260 flex flex-col min-h-screen">
+           <TopHeader />
+           <div className="flex-1">
+              <Outlet />
+           </div>
+           
            <style>{`
              @media(min-width: 769px) {
                .lg-margin-left-260 {
@@ -55,10 +51,10 @@ export default function AppLayout() {
                }
              }
            `}</style>
-           <Outlet />
         </div>
       </main>
       <BottomNav />
     </div>
   );
 }
+

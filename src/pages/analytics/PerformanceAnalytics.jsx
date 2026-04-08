@@ -1,81 +1,149 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import ProgressRing from '../../components/ui/ProgressRing';
-import { BarChart3, TrendingUp, Activity, Award } from 'lucide-react';
+import Skeleton from '../../components/ui/Skeleton';
+import { BarChart3, TrendingUp, Activity, Award, Calendar, ChevronRight, Target, Brain } from 'lucide-react';
 import { subjectProgress, recentScores } from '../../data/dummyData';
 
 export default function PerformanceAnalytics() {
-  return (
-    <div className="p-4 md:p-6 animate-fade-in" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 className="h2 font-bold mb-6 flex items-center gap-2"><BarChart3 className="text-primary"/> Performance Analytics</h1>
+  const [loading, setLoading] = useState(true);
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {[
-          { icon: <TrendingUp className="text-success" />, label: "Overall Accuracy", value: "82%" },
-          { icon: <Activity className="text-warning" />, label: "Avg. Test Score", value: "98/160" },
-          { icon: <Award className="text-primary" />, label: "Predicted Rank", value: "#2,450" },
-          { icon: <BarChart3 className="text-muted" />, label: "Tests Taken", value: "24" },
-        ].map((stat, i) => (
-           <Card key={i} className="flex items-center gap-4">
-              <div className="p-3 bg-main rounded-full">{stat.icon}</div>
-              <div>
-                 <div className="text-sm text-muted">{stat.label}</div>
-                 <div className="text-xl font-bold">{stat.value}</div>
-              </div>
-           </Card>
-        ))}
+  useEffect(() => {
+    // Simulate data fetch for skeleton demo
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+
+  const stats = [
+    { icon: <TrendingUp size={20} />, label: "Overall Accuracy", value: "82%", trend: "+2.4%", color: "success" },
+    { icon: <Activity size={20} />, label: "Average Score", value: "98/160", trend: "+5 pts", color: "warning" },
+    { icon: <Award size={20} />, label: "Predicted Rank", value: "#2,450", trend: "Top 2%", color: "primary" },
+    { icon: <Calendar size={20} />, label: "Mock Tests", value: "24", trend: "Last 30 days", color: "muted" },
+  ];
+
+  return (
+    <div className="p-4 md:p-6 animate-fade-in relative pb-24" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      
+      {/* Title Section */}
+      <div className="mb-8">
+        <h1 className="h3 font-black text-main flex items-center gap-2">
+           <BarChart3 className="text-primary" size={24} /> Learning Analytics
+        </h1>
+        <p className="text-muted text-xs font-bold uppercase tracking-widest mt-1">Real-time performance insights</p>
       </div>
 
+      {loading ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+           {[1,2,3,4].map(i => <Skeleton key={i} height="100px" borderRadius="24px" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {stats.map((stat, i) => (
+             <Card key={i} className="flex flex-col gap-2 p-5 border-0 shadow-sm relative overflow-hidden group hover:shadow-md transition-all bg-white">
+                <div className={`p-2 rounded-xl w-fit ${stat.color === 'success' ? 'bg-success-light text-success' : stat.color === 'warning' ? 'bg-warning-light text-warning-dark' : stat.color === 'primary' ? 'bg-primary-light text-primary' : 'bg-bg-main text-muted'}`}>
+                   {stat.icon}
+                </div>
+                <div>
+                   <div className="text-[10px] font-black uppercase text-muted tracking-tight mb-1">{stat.label}</div>
+                   <div className="text-xl font-black text-main">{stat.value}</div>
+                   <div className={`text-[10px] font-bold mt-1 ${stat.color === 'success' ? 'text-success' : 'text-primary opacity-80'}`}>
+                      {stat.trend}
+                   </div>
+                </div>
+             </Card>
+          ))}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-         <Card className="lg:col-span-2">
-            <h3 className="font-bold mb-4">Score Trend (Last 5 Tests)</h3>
-            <div className="h-64 flex items-end justify-between gap-2 border-b border-l border-color pl-2 pb-2 mt-8 opacity-80">
-               {/* Dummy CSS Chart */}
-               {[40, 55, 62, 75, 82].map((val, i) => (
-                 <div key={i} className="flex flex-col items-center flex-1 group">
-                    <span className="text-xs font-bold mb-2 opacity-0 group-hover:opacity-100 transition text-primary">{val}%</span>
-                    <div className="w-full max-w-[40px] bg-primary rounded-t-sm transition-all hover:bg-primary-hover" style={{ height: `${val}%` }}></div>
-                    <span className="text-xs text-muted mt-2 block w-max">Test {i+1}</span>
+         {/* Score Trend Chart */}
+         <Card className="lg:col-span-2 p-6 !rounded-[32px] border-0 shadow-lg bg-white overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-6 opacity-10">
+               <TrendingUp size={120} />
+            </div>
+            <div className="flex justify-between items-center mb-10 relative z-10">
+               <div>
+                  <h3 className="font-black text-main text-lg tracking-tight">Score Progression</h3>
+                  <p className="text-xs text-muted font-bold">Last 5 Major Mock Assessments</p>
+               </div>
+               <div className="flex gap-1">
+                  {[1,2,3].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-primary" style={{ opacity: 1 - i*0.25 }}></div>)}
+               </div>
+            </div>
+            
+            <div className="h-64 flex items-end justify-between gap-4 relative z-10 px-2 mt-4">
+               {loading ? <Skeleton width="100%" height="100%" /> : [40, 55, 62, 75, 82].map((val, i) => (
+                 <div key={i} className="flex flex-col items-center flex-1 group relative h-full justify-end">
+                    <div className="absolute -top-6 text-[10px] font-black text-primary opacity-0 group-hover:opacity-100 transition translate-y-2 group-hover:translate-y-0">
+                       {val}%
+                    </div>
+                    <div className="w-full max-w-[48px] rounded-2xl transition-all duration-500 shadow-lg relative overflow-hidden" 
+                         style={{ 
+                            height: `${val}%`,
+                            background: 'linear-gradient(180deg, var(--primary) 0%, var(--primary-hover) 100%)',
+                         }}>
+                       <div className="absolute top-0 left-0 w-full h-1/2 bg-white opacity-10"></div>
+                    </div>
+                    <span className="text-[10px] font-black text-muted mt-4 uppercase tracking-tighter">Test 0{i+1}</span>
                  </div>
                ))}
             </div>
          </Card>
 
-         <Card>
-            <h3 className="font-bold mb-4">Subject Mastery</h3>
-            <div className="flex flex-col gap-6 items-center justify-center">
-               {subjectProgress.map(subj => (
-                 <div key={subj.subject} className="flex items-center w-full justify-between gap-4">
-                    <span className="font-semibold w-24">{subj.subject}</span>
-                    <div className="flex-1 bg-border-color h-3 rounded-full overflow-hidden">
-                       <div className="h-full rounded-full" style={{ width: `${subj.progress}%`, backgroundColor: subj.color }}></div>
+         {/* Subject Detail */}
+         <Card className="p-6 !rounded-[32px] border-0 shadow-lg bg-main">
+            <div className="flex items-center gap-3 mb-8">
+               <div className="p-2 bg-white rounded-xl shadow-sm text-primary">
+                  <Brain size={24} />
+               </div>
+               <h3 className="font-black text-main tracking-tight">Focus Areas</h3>
+            </div>
+            
+            <div className="flex flex-col gap-8 h-full justify-center">
+               {loading ? [1,2,3].map(i => <Skeleton key={i} height="40px" />) : subjectProgress.map(subj => (
+                 <div key={subj.subject} className="flex flex-col w-full gap-2">
+                    <div className="flex justify-between items-center px-1">
+                       <span className="text-xs font-black uppercase tracking-widest text-main">{subj.subject}</span>
+                       <span className="text-xs font-black text-primary">{subj.progress}%</span>
                     </div>
-                    <span className="text-sm font-bold">{subj.progress}%</span>
+                    <div className="w-full bg-white h-3 rounded-full overflow-hidden shadow-inner p-0.5">
+                       <div className="h-full rounded-full transition-all duration-1000 shadow-sm" 
+                            style={{ width: `${subj.progress}%`, backgroundColor: subj.color }}></div>
+                    </div>
                  </div>
                ))}
             </div>
          </Card>
       </div>
       
-      <Card>
-         <h3 className="font-bold mb-4">Recent Tests Breakdown</h3>
+      {/* Detailed Report Table */}
+      <Card className="p-0 overflow-hidden border-0 shadow-xl !rounded-[32px] bg-white">
+         <div className="p-6 border-b border-color flex justify-between items-center">
+            <h3 className="font-black text-main text-lg flex items-center gap-2">
+               <Target size={20} className="text-danger" /> Test Report Card
+            </h3>
+            <Button variant="ghost" size="sm" className="text-[10px] font-black border border-color rounded-xl h-8">VIEW FULL HISTORY</Button>
+         </div>
          <div className="w-full overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left border-collapse">
                <thead>
-                  <tr className="border-b border-color text-sm text-muted">
-                    <th className="pb-3">Test Name</th>
-                    <th className="pb-3">Score</th>
-                    <th className="pb-3">Accuracy</th>
-                    <th className="pb-3">Percentile</th>
+                  <tr className="bg-bg-main text-[10px] font-black text-muted uppercase tracking-widest">
+                    <th className="px-6 py-4">Assessment Name</th>
+                    <th className="px-6 py-4 text-center">Final Score</th>
+                    <th className="px-6 py-4 text-center">Accuracy</th>
+                    <th className="px-6 py-4 text-right">Result</th>
                   </tr>
                </thead>
-               <tbody>
-                  {recentScores.map(score => (
-                    <tr key={score.id} className="border-b border-color border-opacity-50 hover:bg-main transition">
-                      <td className="py-4 font-semibold">{score.name}</td>
-                      <td className="py-4 font-bold text-primary">{score.score}</td>
-                      <td className="py-4 font-semibold text-success">{score.accuracy}</td>
-                      <td className="py-4 font-semibold">92.4</td>
+               <tbody className="divide-y divide-color">
+                  {loading ? [1,2,3].map(i => (
+                    <tr key={i}><td colSpan="4" className="p-4"><Skeleton height="30px" /></td></tr>
+                  )) : recentScores.map(score => (
+                    <tr key={score.id} className="hover:bg-primary-light hover:bg-opacity-20 transition-colors group">
+                      <td className="px-6 py-5 font-black text-sm text-main group-hover:text-primary">{score.name}</td>
+                      <td className="px-6 py-5 text-center font-black text-primary">{score.score}</td>
+                      <td className="px-6 py-5 text-center font-bold text-success">{score.accuracy}</td>
+                      <td className="px-6 py-5 text-right">
+                         <Badge variant="success" className="bg-success-light text-success border-0 px-3 uppercase text-[9px] font-black tracking-widest">QUALIFIED</Badge>
+                      </td>
                     </tr>
                   ))}
                </tbody>
@@ -85,3 +153,4 @@ export default function PerformanceAnalytics() {
     </div>
   );
 }
+
