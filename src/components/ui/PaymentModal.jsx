@@ -21,7 +21,7 @@ export default function PaymentModal({ isOpen, onClose, amount = 99, onSuccess, 
 
   // REPLACE THIS WITH YOUR RAZORPAY PUBLIC KEY! (It starts with 'rzp_test_' or 'rzp_live_')
   // We recommend injecting this via Vite env vars in production e.g. import.meta.env.VITE_RAZORPAY_KEY
-  const RAZORPAY_KEY = 'rzp_test_Sb6vRBtrNAOEGe'; 
+  const RAZORPAY_KEY = 'rzp_live_Sb7BdraOHCfido'; 
 
   if (!isOpen) return null;
 
