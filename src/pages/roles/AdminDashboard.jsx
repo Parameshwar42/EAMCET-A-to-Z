@@ -166,7 +166,14 @@ export default function AdminDashboard() {
          await supabase.from('user_progress').update({ is_premium: false }).eq('user_id', item.user_id);
          setMsg({text: 'Transaction flagged as FRAUD. User Premium Access Revoked.', type:'error'});
        } else if (newStatus === 'verified') {
-         await supabase.from('user_progress').update({ is_premium: true }).eq('user_id', item.user_id);
+         // Fix: Check if user_progress row exists. New users might not have one yet!
+         const { data: progressRow } = await supabase.from('user_progress').select('user_id').eq('user_id', item.user_id).single();
+         
+         if (progressRow) {
+            await supabase.from('user_progress').update({ is_premium: true }).eq('user_id', item.user_id);
+         } else {
+            await supabase.from('user_progress').insert({ user_id: item.user_id, is_premium: true });
+         }
          setMsg({text: 'Transaction Verified! Student is now unlocked.', type:'success'});
        }
        fetchData();
