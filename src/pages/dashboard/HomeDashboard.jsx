@@ -5,7 +5,7 @@ import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import ProgressRing from '../../components/ui/ProgressRing';
 import { userProfile, recentScores } from '../../data/dummyData';
-import { Flame, Target, ChevronRight, CheckCircle2, Circle, ShieldAlert, Plus, Edit2, X } from 'lucide-react';
+import { Library, Flame, Target, ChevronRight, CheckCircle2, Circle, ShieldAlert, Plus, Edit2, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 

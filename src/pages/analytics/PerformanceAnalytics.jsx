@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Badge from '../../components/ui/Badge';
 import ProgressRing from '../../components/ui/ProgressRing';
 import Skeleton from '../../components/ui/Skeleton';
-import { BarChart3, TrendingUp, Activity, Award, Calendar, ChevronRight, Target, Brain } from 'lucide-react';
+import { BarChart3, TrendingUp, Activity, Award, Calendar, ChevronRight, Target, Brain, Library } from 'lucide-react';
 import { subjectProgress, recentScores } from '../../data/dummyData';
 
 export default function PerformanceAnalytics() {
