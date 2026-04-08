@@ -250,6 +250,13 @@ export default function AdminDashboard() {
                    />
                    {uploadFile && <span className="text-xs text-success absolute -bottom-5 left-0 font-semibold">{uploadFile.name} ({(uploadFile.size/(1024*1024)).toFixed(2)} MB)</span>}
                 </div>
+                <div className="flex items-center gap-3 mt-2 md:col-span-2 bg-warning-light bg-opacity-30 p-4 rounded-xl border border-warning border-opacity-50">
+                  <input type="checkbox" id="is_premium" checked={formData.is_premium || false} onChange={e => setFormData({...formData, is_premium: e.target.checked})} className="w-5 h-5 accent-warning cursor-pointer" />
+                  <div>
+                     <label htmlFor="is_premium" className="font-bold text-warning-dark cursor-pointer">🔒 Mark as Premium (Paid) Material</label>
+                     <p className="text-xs text-warning-dark opacity-80 mt-0.5">Only users who purchased the Premium Pass can download this.</p>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

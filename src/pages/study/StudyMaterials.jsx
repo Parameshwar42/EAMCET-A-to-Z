@@ -2,13 +2,19 @@ import React, { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
-import { BookOpen, Download, FileText, Search, Library, Filter } from 'lucide-react';
+import { BookOpen, Download, FileText, Search, Library, Filter, Lock } from 'lucide-react';
 import { supabase } from '../../config/supabase';
+import { useAuth } from '../../context/AuthContext';
+import PaymentModal from '../../components/ui/PaymentModal';
 
 export default function StudyMaterials() {
   const [activeTab, setActiveTab] = useState('All');
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const { currentUser } = useAuth();
+  const [isPremiumUser, setIsPremiumUser] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   // Fallback for icons if needed
   const iconMap = {
@@ -19,7 +25,15 @@ export default function StudyMaterials() {
 
   useEffect(() => {
     fetchMaterials();
-  }, []);
+    if (currentUser) {
+      checkPremiumStatus();
+    }
+  }, [currentUser]);
+
+  const checkPremiumStatus = async () => {
+    const { data } = await supabase.from('user_progress').select('is_premium').eq('user_id', currentUser.id).single();
+    if(data?.is_premium) setIsPremiumUser(true);
+  };
 
   const fetchMaterials = async () => {
     setLoading(true);
@@ -106,13 +120,16 @@ export default function StudyMaterials() {
                     >
                       <IconComponent size={24} />
                     </div>
-                    <Badge variant={
-                      item.subject.toLowerCase().includes('math') ? 'primary' :
-                      item.subject.toLowerCase().includes('physic') ? 'warning' :
-                      item.subject.toLowerCase().includes('chemist') ? 'success' : 'danger'
-                    }>
-                      {item.subject}
-                    </Badge>
+                    <div className="flex gap-2">
+                       {item.is_premium && <Badge variant="warning" className="border-warning"><Lock size={12} className="inline mr-1"/>Pro</Badge>}
+                       <Badge variant={
+                         item.subject.toLowerCase().includes('math') ? 'primary' :
+                         item.subject.toLowerCase().includes('physic') ? 'warning' :
+                         item.subject.toLowerCase().includes('chemist') ? 'success' : 'danger'
+                       }>
+                         {item.subject}
+                       </Badge>
+                    </div>
                   </div>
                   
                   <h3 className="font-bold text-lg mb-2 text-main">{item.title}</h3>
@@ -124,17 +141,31 @@ export default function StudyMaterials() {
                   
                   <Button 
                      fullWidth 
-                     variant="outline" 
+                     variant={(item.is_premium && !isPremiumUser) ? "primary" : "outline"} 
                      className="mt-auto group flex items-center justify-center gap-2"
-                     onClick={() => window.open(item.file_url || item.url, '_blank')}
+                     onClick={() => (item.is_premium && !isPremiumUser) ? setShowPaymentModal(true) : window.open(item.file_url || item.url, '_blank')}
                   >
-                    <Download size={18} className="group-hover:translate-y-1 transition-transform"/> Download / View PDF
+                    {(item.is_premium && !isPremiumUser) ? (
+                      <><Lock size={18} className="group-hover:scale-110 transition-transform"/> Unlock Pro (₹99)</>
+                    ) : (
+                      <><Download size={18} className="group-hover:translate-y-1 transition-transform"/> Download / View PDF</>
+                    )}
                   </Button>
                 </Card>
               );
             })}
           </div>
         </>
+      )}
+
+      {showPaymentModal && currentUser && (
+         <PaymentModal 
+           isOpen={showPaymentModal}
+           onClose={() => setShowPaymentModal(false)}
+           amount={99}
+           currentUser={currentUser}
+           onSuccess={() => setIsPremiumUser(true)}
+         />
       )}
     </div>
   );
