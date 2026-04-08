@@ -12,8 +12,8 @@ export default function PaymentModal({ isOpen, onClose, amount = 99, onSuccess, 
   const [step, setStep] = useState(1); // 1 = QR code, 2 = Success
 
   // REPLACE THIS WITH YOUR ACTUAL UPI ID
-  const upiId = "yourname@ybl";
-  const qrLink = `upi://pay?pa=${upiId}&pn=AtoZ%20EAMCET&am=${amount}&cu=INR`;
+  const upiId = "omegrowoffical@okaxis"; 
+  const qrLink = `upi://pay?pa=${upiId}&pn=EAMCET_Premium&am=${amount}&cu=INR`;
   // Using an open source QR generator API for simplicity
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrLink)}`;
 
