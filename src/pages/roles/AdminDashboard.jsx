@@ -4,7 +4,7 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Badge from '../../components/ui/Badge';
-import { ShieldAlert, Video, FileText, PenLine, Zap, Calendar, UploadCloud, Edit3, Trash2, Book, ClipboardList, Play, Clock, Library } from 'lucide-react';
+import { ShieldAlert, Video, FileText, PenLine, Zap, Calendar, UploadCloud, Edit3, Trash2, Book, ClipboardList, Play, Clock, Library, ShieldCheck, XCircle } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 
 export default function AdminDashboard() {
@@ -38,7 +38,8 @@ export default function AdminDashboard() {
       'revision': 'revision_notes',
       'plan': 'study_plan_tasks',
       'pdf_exam': 'pdf_exams',
-      'materials': 'study_materials'
+      'materials': 'study_materials',
+      'transactions': 'transactions'
     };
     return tableMap[module];
   };
@@ -154,6 +155,26 @@ export default function AdminDashboard() {
      fetchData(); setMsg({text: 'Deleted successfully', type:'success'});
   };
 
+  const handleTransactionAction = async (item, newStatus) => {
+     setLoading(true);
+     try {
+       // Update transaction status
+       await supabase.from('transactions').update({ status: newStatus }).eq('id', item.id);
+       
+       // Handle fraud/reject case
+       if (newStatus === 'rejected') {
+         await supabase.from('user_progress').update({ is_premium: false }).eq('user_id', item.user_id);
+         setMsg({text: 'Transaction flagged as FRAUD. User Premium Access Revoked.', type:'error'});
+       } else {
+         setMsg({text: 'Transaction Verified Appoved!', type:'success'});
+       }
+       fetchData();
+     } catch(err) {
+       setMsg({text: err.message, type: 'error'});
+     }
+     setLoading(false);
+  };
+
   const handleEdit = (item) => {
      setEditingId(item.id);
      setMode('add');
@@ -179,7 +200,8 @@ export default function AdminDashboard() {
            { id: 'practice', label: 'Practice', icon: PenLine, color: 'primary' },
            { id: 'revision', label: 'Revision', icon: Zap, color: 'primary' },
            { id: 'plan', label: 'Study Plan', icon: Calendar, color: 'primary' },
-           { id: 'pdf_exam', label: 'Live MCQ Tests', icon: Book, color: 'danger' }
+           { id: 'pdf_exam', label: 'Live MCQ Tests', icon: Book, color: 'danger' },
+           { id: 'transactions', label: 'Transactions', icon: ShieldCheck, color: 'warning' }
          ].map(m => (
            <Button key={m.id} onClick={() => {setModule(m.id); handleClear()}} variant={module === m.id ? (m.color === 'danger' ? 'danger' : 'primary') : 'ghost'} size="sm">
              <m.icon size={16} className="mr-2"/> {m.label}
@@ -189,11 +211,13 @@ export default function AdminDashboard() {
 
       {/* Mode Sub-Tabs */}
       <div className="flex gap-4 mb-6 border-b border-color pl-2">
-         <div onClick={() => setMode('add')} className={`pb-3 font-semibold cursor-pointer transition ${mode === 'add' ? 'text-primary border-b-2 border-primary' : 'text-muted hover:text-primary'}`}>
-            {editingId ? 'Editing Record' : module === 'pdf_exam' ? 'Create & Import MCQ Test' : `Add New ${module}`}
-         </div>
+         {module !== 'transactions' && (
+           <div onClick={() => setMode('add')} className={`pb-3 font-semibold cursor-pointer transition ${mode === 'add' ? 'text-primary border-b-2 border-primary' : 'text-muted hover:text-primary'}`}>
+              {editingId ? 'Editing Record' : module === 'pdf_exam' ? 'Create & Import MCQ Test' : `Add New ${module}`}
+           </div>
+         )}
          <div onClick={() => setMode('manage')} className={`pb-3 font-semibold cursor-pointer transition ${mode === 'manage' ? 'text-primary border-b-2 border-primary' : 'text-muted hover:text-primary'}`}>
-            Manage Live Database
+            {module === 'transactions' ? 'Verify UTR Payments (Fraud Check)' : 'Manage Live Database'}
          </div>
       </div>
 
@@ -279,18 +303,38 @@ export default function AdminDashboard() {
             <h3 className="font-bold mb-4 flex items-center justify-between">Total Records <Badge variant="primary">{dataList.length}</Badge></h3>
             <div className="flex flex-col gap-3 max-h-[600px] overflow-y-auto pr-2">
                {dataList.length === 0 ? <p className="text-muted text-sm text-center py-12">No data found in this module.</p> : dataList.map((item) => (
-                  <div key={item.id} className="flex flex-col md:flex-row justify-between items-start md:items-center bg-bg-main p-4 rounded-xl border border-color gap-3 hover:border-primary transition">
+                  <div key={item.id} className={`flex flex-col md:flex-row justify-between items-start md:items-center p-4 rounded-xl border gap-3 transition ${module === 'transactions' && item.status === 'rejected' ? 'bg-danger-light bg-opacity-20 border-danger' : 'bg-bg-main border-color hover:border-primary'}`}>
                      <div className="flex-1 overflow-hidden w-full">
-                        <div className="font-bold text-sm truncate">{item.title || item.name || item.topic}</div>
-                        <div className="text-[10px] text-muted flex gap-3 mt-1 font-semibold uppercase">
-                           {item.subject && <span>{item.subject}</span>}
-                           {(item.duration || item.duration_mins) && <span>{item.duration || `${item.duration_mins} mins`}</span>}
-                        </div>
+                        {module === 'transactions' ? (
+                           <>
+                             <div className="font-bold text-sm truncate">{item.user_email || 'Unknown User'} <Badge variant={item.status === 'verified' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning'} className="ml-2">{item.status}</Badge></div>
+                             <div className="text-[11px] mt-1 font-mono tracking-wider">
+                                UTR: <span className="font-bold text-main">{item.utr_number}</span> | Amount: ₹{item.amount}
+                             </div>
+                           </>
+                        ) : (
+                           <>
+                              <div className="font-bold text-sm truncate">{item.title || item.name || item.topic}</div>
+                              <div className="text-[10px] text-muted flex gap-3 mt-1 font-semibold uppercase">
+                                 {item.subject && <span>{item.subject}</span>}
+                                 {(item.duration || item.duration_mins) && <span>{item.duration || `${item.duration_mins} mins`}</span>}
+                              </div>
+                           </>
+                        )}
                      </div>
                      <div className="flex items-center gap-2">
-                        {module === 'pdf_exam' && <Button onClick={() => navigate(`/exam/${item.id}`)} variant="outline" size="sm" className="text-success border-success">Play</Button>}
-                        <Button onClick={()=>handleEdit(item)} variant="outline" size="sm">Edit</Button>
-                        <Button onClick={()=>handleDelete(item.id)} variant="danger" size="sm">Delete</Button>
+                        {module === 'transactions' ? (
+                           <>
+                             {item.status !== 'verified' && <Button onClick={() => handleTransactionAction(item, 'verified')} variant="outline" size="sm" className="text-success border-success">Verify</Button>}
+                             {item.status !== 'rejected' && <Button onClick={() => handleTransactionAction(item, 'rejected')} variant="danger" size="sm" className="flex items-center gap-1"><XCircle size={14}/> Reject / Fraud</Button>}
+                           </>
+                        ) : (
+                           <>
+                             {module === 'pdf_exam' && <Button onClick={() => navigate(`/exam/${item.id}`)} variant="outline" size="sm" className="text-success border-success">Play</Button>}
+                             <Button onClick={()=>handleEdit(item)} variant="outline" size="sm">Edit</Button>
+                             <Button onClick={()=>handleDelete(item.id)} variant="danger" size="sm">Delete</Button>
+                           </>
+                        )}
                      </div>
                   </div>
                ))}
