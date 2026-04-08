@@ -10,6 +10,18 @@ export default function PaymentModal({ isOpen, onClose, amount = 99, currentUser
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [step, setStep] = useState(1); // 1 = QR code, 2 = Pending Approval
+  const [timeLeft, setTimeLeft] = useState(90); // 90 seconds countdown
+
+  // Countdown Timer
+  useEffect(() => {
+    let timer;
+    if (step === 2 && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [step, timeLeft]);
 
   // Live polling for Admin Verification
   useEffect(() => {
@@ -130,17 +142,31 @@ export default function PaymentModal({ isOpen, onClose, amount = 99, currentUser
           </div>
         ) : (
           <div className="p-8 text-center flex flex-col items-center justify-center min-h-[350px]">
-            <div className="w-20 h-20 bg-warning rounded-full flex items-center justify-center animate-pulse mb-6 shadow-xl shadow-warning-light">
+            <div className="w-20 h-20 bg-warning rounded-full flex items-center justify-center animate-pulse mb-6 shadow-xl shadow-warning-light relative">
               <Clock color="white" size={40} />
+              {/* Optional: you could make this spin or add a ring */}
             </div>
+            
             <h2 className="text-2xl font-black text-warning-dark">Under Review</h2>
-            <p className="text-muted mt-3 font-semibold">Your payment of ₹{amount} has been submitted to the Admin for verification.</p>
+            
+            <div className="bg-warning-light text-warning-dark font-mono font-bold text-2xl py-2 px-6 rounded-lg my-4 shadow-sm border border-warning border-opacity-30">
+               {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
+            </div>
+
+            <p className="text-muted font-semibold">Your payment of ₹{amount} has been submitted to the Admin for verification.</p>
+            
             <div className="bg-bg-main border border-color p-4 rounded-xl mt-6">
                 <p className="text-xs text-muted mb-1">Your Submitted UTR:</p>
                 <p className="text-lg font-mono font-bold text-main tracking-widest">{utrNumber}</p>
             </div>
-            <p className="text-xs text-primary mt-6">You will be unlocked automatically once the admin confirms the receipt. You may close this window.</p>
-            <Button onClick={onClose} variant="outline" className="mt-6 w-full">Back to App</Button>
+            
+            <p className="text-xs text-primary mt-6">
+              {timeLeft > 0 ? "You will be unlocked automatically within the time limit. Please do not close this window." : "Taking longer than usual. The Admin will verify this shortly. You may close the app and check back later."}
+            </p>
+            
+            {timeLeft === 0 && (
+               <Button onClick={onClose} variant="outline" className="mt-6 w-full">Back to App (Check Later)</Button>
+            )}
           </div>
         )}
       </Card>
