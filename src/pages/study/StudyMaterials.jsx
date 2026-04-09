@@ -3,7 +3,7 @@ import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Skeleton from '../../components/ui/Skeleton';
-import { BookOpen, Download, FileText, Search, Library, Filter, Lock, ChevronRight } from 'lucide-react';
+import { BookOpen, Download, FileText, Search, Library, Filter, Lock } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import { useAuth } from '../../context/AuthContext';
 import PaymentModal from '../../components/ui/PaymentModal';
@@ -107,16 +107,21 @@ export default function StudyMaterials() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
           {[1,2,3,4,5,6].map(i => (
             <Card key={i} className="flex flex-col gap-3 p-4">
-               <Skeleton width="40px" height="40px" borderRadius="12px" />
-               <Skeleton width="80%" height="1.2rem" />
-               <Skeleton width="40%" height="0.8rem" />
-               <div className="flex gap-2 mt-2">
-                 <Skeleton width="50%" height="40px" borderRadius="10px" />
-                 <Skeleton width="50%" height="40px" borderRadius="10px" />
+               <div className="flex items-center gap-3">
+                 <Skeleton width="44px" height="44px" borderRadius="14px" />
+                 <div className="flex-1">
+                   <Skeleton width="60%" height="0.7rem" />
+                   <Skeleton width="85%" height="1rem" style={{marginTop:'6px'}} />
+                 </div>
                </div>
+               <div className="flex gap-2">
+                 <Skeleton width="60px" height="26px" borderRadius="99px" />
+                 <Skeleton width="80px" height="26px" borderRadius="99px" />
+               </div>
+               <Skeleton width="100%" height="40px" borderRadius="12px" />
             </Card>
           ))}
         </div>
@@ -129,59 +134,64 @@ export default function StudyMaterials() {
            <p className="text-sm text-muted px-8 mt-1">Try adjusting your filters or search term to find what you're looking for.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
           {filteredMaterials.map(item => {
             const isLocked = item.is_premium && !isPremiumUser;
             return (
-              <Card key={item.id} className="group relative flex flex-col p-5 hover:shadow-xl transition-all border-color hover:border-primary border-opacity-50 overflow-hidden bg-white">
-                {item.is_premium && (
-                   <div className="absolute top-0 right-0 p-2">
-                      <Lock size={14} className={isLocked ? "text-warning" : "text-success"} />
-                   </div>
-                )}
-                
-                <div className="flex items-start gap-4 mb-4">
-                  <div 
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: isLocked ? 'var(--warning-light)' : 'var(--primary-light)', color: isLocked ? 'var(--warning-dark)' : 'var(--primary)' }}
+              <Card key={item.id} className="group relative flex flex-col bg-white border-color hover:border-primary hover:shadow-lg transition-all overflow-hidden" style={{padding:'1rem'}}>
+
+                {/* Top row: icon + info */}
+                <div className="flex items-start gap-3 mb-3">
+                  <div
+                    className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                    style={{
+                      backgroundColor: isLocked ? 'var(--warning-light)' : 'var(--primary-light)',
+                      color: isLocked ? 'var(--warning-dark)' : 'var(--primary)'
+                    }}
                   >
-                    <BookOpen size={24} strokeWidth={2.5} />
+                    <BookOpen size={20} strokeWidth={2.5} />
                   </div>
+
                   <div className="flex-1 min-w-0">
                     <Badge variant={
                       item.subject.toLowerCase().includes('math') ? 'primary' :
                       item.subject.toLowerCase().includes('physic') ? 'warning' :
                       item.subject.toLowerCase().includes('chemist') ? 'success' : 'danger'
-                    } className="mb-2 !text-[9px] uppercase tracking-tighter">
+                    } className="mb-1.5 !text-[9px] uppercase tracking-tighter">
                       {item.subject}
                     </Badge>
-                    <h3 className="font-bold text-main text-[15px] leading-tight line-clamp-2">{item.title}</h3>
+                    <h3 className="font-bold text-main text-[13px] leading-snug line-clamp-2">{item.title}</h3>
                   </div>
+
+                  {item.is_premium && (
+                    <Lock size={13} className={`flex-shrink-0 mt-0.5 ${isLocked ? 'text-warning' : 'text-success'}`} />
+                  )}
                 </div>
-                
-                <div className="flex items-center gap-3 mb-5">
-                   <div className="flex items-center gap-1 text-[10px] font-bold text-muted bg-bg-main px-2 py-1 rounded-md">
-                      <FileText size={12} /> {item.type || 'PDF'}
+
+                {/* Metadata pills */}
+                <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                   <div className="flex items-center gap-1 text-[10px] font-bold text-muted bg-bg-main px-2.5 py-1.5 rounded-full">
+                      <FileText size={10} /> {item.type || 'PDF'}
                    </div>
                    {item.size && (
-                     <div className="flex items-center gap-1 text-[10px] font-bold text-muted bg-bg-main px-2 py-1 rounded-md">
-                        <Download size={12} /> {item.size}
+                     <div className="flex items-center gap-1 text-[10px] font-bold text-muted bg-bg-main px-2.5 py-1.5 rounded-full">
+                        <Download size={10} /> {item.size}
                      </div>
                    )}
                 </div>
-                
-                <Button 
-                   fullWidth 
-                   variant={isLocked ? "warning" : "primary"} 
-                   className={`mt-auto h-11 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm ${isLocked ? 'shadow-warning-light' : 'shadow-primary-light'}`}
+
+                {/* Action button */}
+                <Button
+                   fullWidth
+                   variant={isLocked ? "warning" : "primary"}
+                   className={`mt-auto h-10 rounded-xl font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 ${isLocked ? 'shadow-sm' : 'shadow-sm shadow-primary-light'}`}
                    onClick={() => isLocked ? setShowPaymentModal(true) : window.open(item.file_url || item.url, '_blank')}
                 >
                   {isLocked ? (
-                    <><Lock size={16} /> Unlock Material</>
+                    <><Lock size={14} /> Unlock Material</>
                   ) : (
-                    <><Download size={16} /> Download File</>
+                    <><Download size={14} /> Download File</>
                   )}
-                  <ChevronRight size={14} className="ml-auto opacity-50" />
                 </Button>
               </Card>
             );

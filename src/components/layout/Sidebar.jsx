@@ -24,7 +24,6 @@ export default function Sidebar() {
     width: '260px',
     backgroundColor: 'var(--bg-card)',
     borderRight: '1px solid var(--border-color)',
-    display: 'flex',
     flexDirection: 'column',
     padding: 'var(--space-6) 0',
     height: '100vh',
@@ -58,7 +57,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside style={sidebarStyle} className="md:hidden lg:flex">
+    <aside style={sidebarStyle} className="hidden lg:flex">
       <div style={logoStyle}>A to Z EAMCET</div>
       <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
         {navItems.map(item => {
